@@ -1,0 +1,224 @@
+\documentclass[a4paper,english]{article}
+
+%% Use utf-8 encoding for foreign characters
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+
+%% Vector based fonts instead of bitmaps
+\usepackage{lmodern}
+
+%% Useful
+%\usepackage{fullpage} % Smaller margins
+\usepackage{enumerate}
+
+%% Theorem
+\usepackage{amsthm}
+
+%% More math
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{pgfplots}
+
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+
+%% Document Header
+\title{Polar Bear Location Modelling Using Isotopic Data}
+\author{Kevin Koehler}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Linear Regression Models}
+
+\subsection{Background}
+
+\subsubsection{Simple Linear Regression}
+Regression is about function approximation. Many times, we have some event data described by independent variables called \textit{features} and some dependent variables called \textit{results}. In regression, and indeed machine learning, we assume that there is some function $f: \text{ features } \to \text{ results }$. In general, we say that where $\textbf{x}$ is the feature vector and $\textbf{y}$ is the result vector, we wish to approximate $f(\textbf{x})=\textbf{y}$ with another function that we learn. This function $f'$ takes the form $f'(\textbf{x}) = \hat{\textbf{y}}$, where $\hat{\textbf{y}}$ is our predicted value, which we attempt to get as close to the true value $\textbf{y}$ as possible.
+
+Linear regression is a regression model that assumes $f$ is approximately linear on its inputs. The word \textit{linear} here actually means hyperplanar, where, if our feature space is $n$-dimensional, our aim is to produce a $n$-dimensional \textit{hyperplane} which approximates $f$. For example, suppose we have a one dimensional feature space with the following data:\\
+
+\begin{tikzpicture}
+\begin{axis}[axis lines=center]
+  \addplot[only marks] coordinates{ 
+  	(0,0)
+  	(1,1)
+  	(2,3)
+  	(3,3)
+  	(4,5)
+  	(5,4)
+  	(6,6)
+  	(7,6)
+};
+\end{axis}
+\end{tikzpicture}
+
+Our \textit{line of best fit} can be described by the equation $\hat{y} = mx + b$ where $m$ is the slope and $b$ is the y-intercept. The \textit{least squares} approach finds the line of best fit by minimizing the total error, where the error is the difference between the true value and the predicted value. Let $\hat{\epsilon_i}$ be the difference between $\hat{y}$ and $y_i$, i.e. $\hat{\epsilon_i} = | mx_i + b - y_i |$. Our goal, then, is to find minimal $m,b$ for all $\sum_{i}\epsilon_i$. 
+
+We can find minimal values $m,b$ with the following recursive algorithm:
+
+\begin{align*}
+&b = \bar{y} - m\bar{x} \\
+&m = \frac{\sum_{i}(x_i - \bar{x})(y_i - \bar{y})}{\sum_{i}(x_i \bar{x}^2}
+\end{align*}
+
+With an $R^2$ value of:
+
+$$
+r_{xy} = \frac{\bar{xy} - \bar{x}\bar{y}}{\sqrt{(\bar{x^2} - \bar{x}^2)(\bar{y^2} - \bar{y}^2)}}
+$$
+
+If we do the calculations as above for our simple example, we arrive at values $m=0.857143, b=0.5$, with $R^2$ value of $0.907563$. This results in a graph that looks like this:\\
+
+\begin{tikzpicture}
+\begin{axis}[axis lines=center]
+  \addplot[only marks] coordinates{ 
+  	(0,0)
+  	(1,1)
+  	(2,3)
+  	(3,3)
+  	(4,5)
+  	(5,4)
+  	(6,6)
+  	(7,6)
+  };
+  \addplot [domain=0:7] {0.857143 * x + 0.5};
+\end{axis}
+\end{tikzpicture}
+
+\subsubsection{Multiple Linear Regression}
+
+Very often, we have $k$ independent variables rather than one. This means that instead of constructing a line to fit the data, we must construct a $k$-dimensional plane. For reason that will become clear, in machine learning we often denote the equation of the plane as:
+
+$$
+\hat{y} = w_0 + w_1x_1 + ... + w_kx_k
+$$
+
+In regression modelling, we are trying to fit our data. From the data, for regression problems, which are \textit{supervised} learning problems, the data must contain both the independent variables $\textbf{X}$ and the results $\textbf{y}$. Thus the our model becomes:
+
+$$
+\hat{\textbf{y}} = \textbf{w}\textbf{X}
+$$
+
+Here $\textbf{w}$ is the weight vector which we attempt to optimize such that the error is minimized. The error can be calculated using the \textit{mean squared error}:
+
+$$
+MSE(\textbf{y}, \hat{\textbf{y}}) = \frac{1}{k}\sum_{i=1}^{i=k}(y_i - \hat{y}_i)
+$$
+
+Let $\textbf{A}_i$ denote the $i$th row of a matrix $\textbf{A}$. Thus the value we must optimize is:
+
+$$
+E = \sum_{j=1}^{j=n}MSE(\textbf{X}_j \textbf{w}, \textbf{y}_j )
+$$
+
+We can use the \textit{ordinary least squares} (OLS) method to find the weight vector. To find the weight vector $\textbf{w}$ we are looking for a vector $\hat{\textbf{w}}$ which satisfies:
+
+$$
+\hat{\textbf{w}} = \argmin_{ \hat{\textbf{w}}} \sum_{i=1}^{i=k} (y_i - w_0 - (\hat{\textbf{w}}\textbf{X})_i)^2 
+$$
+
+We can find the solution to the above problem with the following equation:
+
+$$
+\hat{\textbf{w}} = (\textbf{X}^{\intercal}\textbf{X})^{-1}\textbf{y}\textbf{X}^{\intercal}
+$$
+
+\subsubsection{Multivariate Linear Regression}
+
+Multivariate linear regression deals with the case where the result vector $\hat{\textbf{y}}$ has entries with length $m > 1$, i.e. it is a matrix.
+
+Let $\textbf{X}$ be the matrix of features, consisting of $n$ observational records of length $k$, thus taking the shape $n \times k$. Let $\bold{Y}$ be the matrix of results, consisting of $n$ observational records of length $m$, thus taking the shape $n \times m$. Then our more complex model will take the form:
+
+$$
+\hat{\textbf{Y}} = \textbf{X} \textbf{W}
+$$
+
+Where $\hat{\textbf{Y}}$ is the $n \times m$ matrix of predicted values, $\textbf{W}$ the $n \times m$ weight matrix we wish to optimize. In the previous subsection, we optimized a single weight vector. In multivariate regression, we aim to optimize a single weight vector $\textbf{w}$. Here we aim to optimize the row vectors $\textbf{W}_{i}$ of $\textbf{W}$ such that the following total error of the model is minimized:
+
+\begin{align*}
+E &= \sum_{i=1}^{i=n} MSE((\textbf{XW})_i, \textbf{Y}_{i}) \\
+  &= \sum_{i=1}^{i=n} MSE(\hat{\textbf{Y}}_i, \textbf{Y}_{i})
+\end{align*}
+ 
+Again, we use the OLS method to find a weight matrix $\hat{\textbf{W}}$ such that:
+
+$$
+\hat{\textbf{W}} = \argmin_{\hat{\textbf{W}}}\sum_{i=1}^{i=n}\sum_{j=1}^{j=m}(\textbf{Y}_{ij} - \textbf{W}_{0j} - \textbf{XW}_{ij})^2
+$$
+
+The solution to which being:
+
+$$
+\hat{\textbf{W}} = (\textbf{X}^{\intercal}\textbf{X})^{-1}\textbf{Y}\textbf{X}^{\intercal}
+$$
+
+\subsection{Implementation}
+
+For the polar bear data, there are two approaches one could take. Firstly, we could use multiple linear regression with the isotopic features to regress the zone for which polar bears were tagged. Another approach would be to use multivariate regression to predict the longitude and latitude values. Both approaches will be explored in this document.
+
+To get results, the python module ``sk-learn'' was used to optimize the ordinary least squares objective function. 
+
+Before fitting the model, all features were scaled. 
+
+\subsubsection{Multiple Linear Regression}
+
+In the data, there are seven zones. These zones were given a label between 1 and 7. The multiple linear regressor was fit to these zones. The model outputs a continuous number, often something like ``2.121...'' for the purposes of calculating MSE and $R^2$. These continuous outputs were then rounded to the closest integer, which corresponds to one of the zone labels. This allows for the calculation of accuracy. 
+
+\subsubsection{Multivariate Linear Regression}
+
+
+The multivariate linear regressor attempts to predict the longitude/latitude of the polar bears based on the feature subsets. The MSE it outputs is the (squared) average deviance of the predicted longitude/latitude values from the true longitude/latitude values. For example, if the true coordinates were $(100,100)$ and the the model predicted $(90,90)$ then the MSE would be $100.0$.
+
+\newpage
+
+\subsection{Results}
+
+The python module ``sk-learn'' allows for arbitrarily worsening $R^2$ such that an $R^2$ score of $0$ indicates that the model is randomly guessing, or disregarding the inputs, and a negative $R^2$ indicates that the model performs worse than random.
+
+The results shown below are 10-fold cross validated.
+
+\subsubsection{Results Table}
+
+\begin{table}[htbp]
+\centering
+\caption{Linear Regression Results}
+\label{my-label}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{}                   & \textbf{Features}                                                   &                                                                   &                                                                   \\ \hline
+\textbf{Outcomes}           & \textit{d2H, d13C, d15N}                                            & \textit{d15N,d13C,d2H,Year}                                       & \textit{Year}                                                     \\ \hline
+\textit{Longitude/Latitude} & \begin{tabular}[c]{@{}l@{}}MSE: -41.5\\ $R^2$: -1.50\end{tabular}   & \begin{tabular}[c]{@{}l@{}}MSE: -34.9\\ $R^2$: -1.12\end{tabular} & \begin{tabular}[c]{@{}l@{}}MSE: -161\\ $R^2$: -0.675\end{tabular} \\ \hline
+\textit{Latitude}           & \begin{tabular}[c]{@{}l@{}}MSE: -24.5\\ $R^2$:-0.0354\end{tabular}  & \begin{tabular}[c]{@{}l@{}}MSE: -11.0\\ $R^2$:0.315\end{tabular}  & \begin{tabular}[c]{@{}l@{}}MSE: -15.5\\ $R^2$: 0.306\end{tabular} \\ \hline
+\textit{Longitude}          & \begin{tabular}[c]{@{}l@{}}MSE: -58.5\\ $R^2$:-2.55\end{tabular}    & \begin{tabular}[c]{@{}l@{}}MSE: -58.8\\ $R^2$:-2.55\end{tabular}  & \begin{tabular}[c]{@{}l@{}}MSE: -306\\ $R^2$:-1.65\end{tabular}   \\ \hline
+\textit{Zone}               & \begin{tabular}[c]{@{}l@{}}MSE: -1.34\\ $R^2$: -0.0354\end{tabular} & \begin{tabular}[c]{@{}l@{}}MSE: -0.903\\ $R^2$: 0.29\end{tabular} & \begin{tabular}[c]{@{}l@{}}MSE: -1.25\\ $R^2$: 0.125\end{tabular} \\ \hline
+\textit{Zone Accuracy}      & 33.8\%                                                              & 62.0\%                                                            & 29.7\%                                                            \\ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Results Discussion}
+
+From the results, we can gather that neither the multiple linear regressor (classifier) or the multivariate linear regressor are sufficiently accurate enough. The classifier did achieve 62\% accuracy, but I suspect this is due to sampling bias, where certain zones were sampled much more frequently in particular years. When the year was taken out of the feature space, the models were never able to obtain a positive $R^2$ value.
+
+All of the objective functions implemented in the software library I used were tested on the data. None improved results.
+
+I suspect that function we are approximating is indeed linear on its inputs. However, the nature of the multiple linear classifier was perhaps not ideal for the job, as it spits out a continuous latent variable which must be rounded in order to categorize the ouput. To remedy this, perhaps a logistic regression model may produce better results.
+
+If the function is non-linear, a non-linear classifier may be necessary (such as a support vector machine). If the function is not smooth, then most likely a feedforward neural network classifier will be necessary.
+
+\section{Logistic Regression Models}
+
+\subsection{Binary Logistic Regression Model}
+
+\section{Non-Linear Regression Models}
+
+\section{Bayesian Classifiers}
+
+\section{Perceptron Classifiers}
+
+\section{Feedforward Neural Network Models}
+
+\section{Advanced Models}
+
+\end{document}

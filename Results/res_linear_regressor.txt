@@ -1,0 +1,44 @@
+NO YEAR:
+
+mse:  -1.3420442291965384
+r2:  -0.035380952494531694
+accuracy:  0.33801169590643276
+multivariate linear regression
+mse:  -41.50890365621337
+r2:  -1.4964688571313483
+
+YEAR + ISOTOPES:
+
+multiple linear regression
+mse:  -0.9025536577768978
+r2:  0.29838431923099973
+accuracy:  0.6198830409356725
+multivariate linear regression
+mse:  -34.93750892601107
+r2:  -1.1180240914399708
+
+JUST YEAR:
+
+multiple linear regression
+mse:  -1.2468238065681796
+r2:  0.12548462609997874
+accuracy:  0.2974976830398517
+multivariate linear regression
+mse:  -160.61091888340925
+r2:  -0.6752137428171694
+
+JUST YEAR TO PREDICT JUST LATITUDE:
+
+multiple linear regression
+mse:  -1.2468238065681796
+r2:  0.12548462609997874
+accuracy:  0.2974976830398517
+multivariate linear regression
+mse:  -15.516645070007266
+r2:  0.30564696284401693
+
+
+
+
+
+
