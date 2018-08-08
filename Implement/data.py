@@ -1,45 +1,40 @@
-#Kevin Koehler
-#7 April 2018
-
-#Preprocess the data
-#Make it suitable for keras/tf
-
-import pandas as pd
 import numpy as np
+import pandas as pd
+from sklearn.utils import shuffle
 
-#constants here
+
 FNAME_pbeardat = "../Data/Polar_Bear_Adult_4_Geoff.csv"
-FEATURES = ["d15N","d13C","d2H"]
-OUTCOMES1 = ["Latitude","Longitude"]
-OUTCOMES2 = ["ZONE"]
-TEST_PERCENT = 0.1
+FEATURES = ["d15N","d13C","d2H","d18O"]
 
-#Load csv file into memory
-def _load_csv(fname):
-	return pd.read_csv(fname)
 
-def convert(y_zone):
-  zone_dic = {'LS':0, 'BB':1, 'WH':2, 'DS':3, 'FB':4, 'VM':5, 'KB':6 }
-  return [zone_dic[x] for x in y_zone['ZONE']]
+def _int_labels(y):
+    dic = {}
+    cur = 0
+    r = []
+    for elem in y:
+        if elem[0] not in dic:
+            dic[elem[0]] = cur
+            cur+=1
+        r.append(dic[elem[0]])
+    return r, dic
 
-#reshapes the dataframe to an np.array suitable for tf
-def _reshape(features, outcomes, test_thresh, df, zone=False):
-  for feature in features:
-    df = df[np.isfinite(df[feature])]
-  if not zone:
-    for outcome in outcomes:
-      df = df[np.isfinite(df[outcome])]
-  x = df.filter(items=features)
-  y = df.filter(items=outcomes)
-  if zone:
-    y = convert(y)
-    
-  return np.array(x), np.array(y)
-	
-#returns an numpy array in suitable shape for tensorflow
-def prepare(arg=None):
-	df = _load_csv(FNAME_pbeardat)
-	if(arg == 'zone'):
-		return _reshape(FEATURES, OUTCOMES2, TEST_PERCENT, df, zone=True)
-	else:
-		return _reshape(FEATURES, OUTCOMES1, TEST_PERCENT, df)
+
+def _prep_bayesian_classifier(remove_outliers=True):
+    OUTCOMES = ["ZONE"]
+    df = pd.read_csv(FNAME_pbeardat)
+    if remove_outliers:
+        df = df.loc[df["Delete2"] == 0]
+    df = df.dropna()
+    df = shuffle(df)
+    x, y = df[FEATURES].values, df[OUTCOMES].values
+    y, zone_dic = _int_labels(y)
+    return x, y, zone_dic
+
+
+def prep(model="Bayesian Classifier"):
+    try:
+        return {
+            "Bayesian Classifier":_prep_bayesian_classifier
+        }[model]()
+    except KeyError:
+        raise ValueError("Invalid model {model}".format(model=model))
