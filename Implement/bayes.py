@@ -6,7 +6,6 @@ import data
 
 class BayesClassifier:
 
-
     def __init__(self, pca=False, n_components=3, k=5):
         self.model = GaussianNB()
         self.x, self.y, self.zone_dic = data.prep()
