@@ -13,6 +13,7 @@ while True:
         model_input.append(float(input("{f}: ".format(f=f))))
     y_pred, y_pred_prob = model.predict(model_input)
     print(""
-    "Model predicts {y_pred} with {conf}% confidence.".format(
+    "Model predicts {y_pred} with {conf}% confidence."
+    "".format(
         y_pred=_rev_lookup(y_pred, model.zone_dic),
         conf=round(y_pred_prob[0][y_pred][0]*100, 4)))
