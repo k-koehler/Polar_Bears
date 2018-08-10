@@ -1,5 +1,5 @@
 from sklearn.naive_bayes import GaussianNB
-from sklearn.cross_validation import cross_val_score
+from sklearn.model_selection import cross_val_score
 from sklearn.decomposition import PCA
 
 import data

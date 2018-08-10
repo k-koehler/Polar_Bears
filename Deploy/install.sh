@@ -20,6 +20,7 @@
     exit 1
 }
 
+cd ~
 echo "Installing requirements..."
 pip3 install -r requirements.txt
 echo "Cloning repo..."

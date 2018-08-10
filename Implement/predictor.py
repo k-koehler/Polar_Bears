@@ -17,3 +17,5 @@ while True:
     "".format(
         y_pred=_rev_lookup(y_pred, model.zone_dic),
         conf=round(y_pred_prob[0][y_pred][0]*100, 4)))
+    print(model.zone_dic)
+    print([ypp * 100 for ypp in y_pred_prob])
