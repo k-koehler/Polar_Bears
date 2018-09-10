@@ -1,5 +1,3 @@
-#!/bin/python
-
 import readline, sys, pandas, numpy as np
 
 from bayes import BayesClassifier
